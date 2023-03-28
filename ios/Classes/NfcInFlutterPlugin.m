@@ -5,7 +5,7 @@
     dispatch_queue_t dispatchQueue;
 }
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-    dispatch_queue_t dispatchQueue = dispatch_queue_create("me.andisemler.nfc_in_flutter.dispatch_queue", NULL);
+    dispatch_queue_t dispatchQueue = dispatch_queue_create("dev.semler.nfc_in_flutter.dispatch_queue", NULL);
     
     FlutterMethodChannel* channel = [FlutterMethodChannel
                                      methodChannelWithName:@"nfc_in_flutter"
@@ -155,7 +155,7 @@
                     initWithData:[payload.payload
                                   subdataWithRange:NSMakeRange(1, payload.payload.length-1)]
                     encoding:NSUTF8StringEncoding];
-            
+
             const unsigned char* bytes = [payload.payload bytes];
             int languageCodeLength = bytes[0] & 0x3f;
             languageCode = [[NSString alloc]
@@ -337,6 +337,9 @@
         if (languageCode != nil) {
             [record setObject:languageCode forKey:@"languageCode"];
         }
+
+        [record setObject:[FlutterStandardTypedData typedDataWithBytes:payload.payload] forKey:@"rawPayload"];
+
         [records addObject:record];
     }
     NSDictionary* result = @{
