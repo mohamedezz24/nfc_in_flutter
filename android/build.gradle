@@ -1,4 +1,4 @@
-group 'me.andisemler.nfc_in_flutter'
+group 'dev.semler.nfc_in_flutter'
 version '1.0-SNAPSHOT'
 
 buildscript {
@@ -22,10 +22,11 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
 
     defaultConfig {
-        minSdkVersion 17
+        minSdkVersion 19
+        targetSdkVersion 30
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
