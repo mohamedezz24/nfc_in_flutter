@@ -28,6 +28,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -39,7 +44,8 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /**
  * NfcInFlutterPlugin
  */
-public class NfcInFlutterPlugin implements MethodCallHandler,
+public class NfcInFlutterPlugin implements FlutterPlugin, ActivityAware,
+        MethodCallHandler,
         EventChannel.StreamHandler,
         PluginRegistry.NewIntentListener,
         NfcAdapter.ReaderCallback {
@@ -49,7 +55,7 @@ public class NfcInFlutterPlugin implements MethodCallHandler,
     private final int DEFAULT_READER_FLAGS = NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_NFC_B | NfcAdapter.FLAG_READER_NFC_F | NfcAdapter.FLAG_READER_NFC_V;
     private static final String LOG_TAG = "NfcInFlutterPlugin";
 
-    private final Activity activity;
+    private Activity activity;
     private NfcAdapter adapter;
     private EventChannel.EventSink events;
 
@@ -68,9 +74,37 @@ public class NfcInFlutterPlugin implements MethodCallHandler,
         tagChannel.setStreamHandler(plugin);
     }
 
+    public NfcInFlutterPlugin() {}
+
     private NfcInFlutterPlugin(Activity activity) {
         this.activity = activity;
     }
+
+    @Override
+    public void onAttachedToEngine(FlutterPluginBinding binding) {
+        final MethodChannel channel = new MethodChannel(binding.getBinaryMessenger(), "nfc_in_flutter");
+        final EventChannel tagChannel = new EventChannel(binding.getBinaryMessenger(), "nfc_in_flutter/tags");
+        channel.setMethodCallHandler(this);
+        tagChannel.setStreamHandler(this);
+    }
+
+    @Override
+    public void onDetachedFromEngine(FlutterPluginBinding binding) {}
+
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+        activity = binding.getActivity();
+        binding.addOnNewIntentListener(this);
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {}
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {}
+
+    @Override
+    public void onDetachedFromActivity() {}
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
