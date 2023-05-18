@@ -1,15 +1,15 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:async';
 import 'dart:core';
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
 import './exceptions.dart';
 
 class NFC {
-  static MethodChannel _channel = MethodChannel("nfc_in_flutter");
-  static const EventChannel _eventChannel =
-      const EventChannel("nfc_in_flutter/tags");
+  static const MethodChannel _channel = MethodChannel("nfc_in_flutter");
+  static const EventChannel _eventChannel = EventChannel("nfc_in_flutter/tags");
 
   static Stream<dynamic>? _tagStream;
 
@@ -134,9 +134,9 @@ class NFC {
       } else if (err.code == "SystemIsBusyError") {
         throw NFCSystemIsBusyException(err.message);
       }
-      throw err;
+      rethrow;
     } catch (error) {
-      throw error;
+      rethrow;
     }
 
     return controller.stream;
@@ -148,7 +148,6 @@ class NFC {
   /// argument to `true` and use the `.first` method on the returned `Stream`.
   static Stream<NDEFTag> writeNDEF(
     NDEFMessage newMessage, {
-
     /// once will stop reading after the first tag has been read.
     bool once = false,
 
@@ -208,7 +207,7 @@ class NFC {
       if (err.code == "NFCMultipleReaderModes") {
         throw NFCMultipleReaderModesException();
       }
-      throw err;
+      rethrow;
     }
 
     return controller.stream;
@@ -234,6 +233,7 @@ abstract class NFCReaderMode {
 /// NFCNormalReaderMode uses the platform's normal reading mode. This does not
 /// allow reading from emulated host cards.
 class NFCNormalReaderMode implements NFCReaderMode {
+  @override
   String get name => "normal";
 
   /// noSounds tells the platform not to play any sounds when a tag has been
@@ -256,6 +256,7 @@ class NFCNormalReaderMode implements NFCReaderMode {
 /// NFCDispatchReaderMode uses the Android NFC Foreground Dispatch API to read
 /// tags with.
 class NFCDispatchReaderMode implements NFCReaderMode {
+  @override
   String get name => "dispatch";
 
   @override
@@ -281,6 +282,7 @@ abstract class NFCTag {
 }
 
 class NDEFMessage implements NFCMessage {
+  @override
   final String? id;
   final String? type;
   final List<NDEFRecord> records;
@@ -303,7 +305,7 @@ class NDEFMessage implements NFCMessage {
   }
 
   bool get isEmpty {
-    if (records.length == 0) {
+    if (records.isEmpty) {
       return true;
     }
     if (records.length == 1 && records[0].tnf == NFCTypeNameFormat.empty) {
@@ -375,30 +377,27 @@ class NDEFRecord {
         languageCode = null,
         rawPayload = null;
 
-  NDEFRecord.plain(String data)
+  NDEFRecord.plain(this.data)
       : id = null,
         type = "text/plain",
         payload = data,
-        this.data = data,
         tnf = NFCTypeNameFormat.mime_media,
         languageCode = null,
         rawPayload = null;
 
-  NDEFRecord.type(this.type, String payload)
+  NDEFRecord.type(this.type, this.payload)
       : id = null,
-        this.payload = payload,
         data = payload,
         tnf = NFCTypeNameFormat.mime_media,
         languageCode = null,
         rawPayload = null;
 
-  NDEFRecord.text(String message, {languageCode = "en"})
+  NDEFRecord.text(String message, {this.languageCode = "en"})
       : id = null,
         data = message,
         payload = message,
         type = "T",
         tnf = NFCTypeNameFormat.well_known,
-        this.languageCode = languageCode,
         rawPayload = null;
 
   NDEFRecord.uri(Uri uri)
@@ -419,10 +418,9 @@ class NDEFRecord {
         languageCode = null,
         rawPayload = null;
 
-  NDEFRecord.external(this.type, String payload)
+  NDEFRecord.external(this.type, this.payload)
       : id = null,
         data = payload,
-        this.payload = payload,
         tnf = NFCTypeNameFormat.external,
         languageCode = null,
         rawPayload = null;
@@ -482,7 +480,9 @@ class NDEFRecord {
 }
 
 class NDEFTag implements NFCTag {
+  @override
   final String? id;
+  @override
   final bool writable;
 
   NDEFTag._internal(this.id, this.writable);
@@ -500,7 +500,7 @@ class NDEFTag implements NFCTag {
     } on PlatformException catch (e) {
       switch (e.code) {
         case "NFCUnexpectedError":
-          final msg = 'nfc: unexpected error';
+          const msg = 'nfc: unexpected error';
           throw Exception(e.message != null ? "$msg: ${e.message}" : msg);
         case "IOError":
           throw NFCIOException(e.message);
@@ -517,10 +517,10 @@ class NDEFTag implements NFCTag {
         case "NFCUpdateTagError":
           throw NFCUpdateTagException();
         default:
-          throw e;
+          rethrow;
       }
     } catch (error) {
-      throw error;
+      rethrow;
     }
   }
 }

@@ -6,9 +6,11 @@ import 'package:nfc_in_flutter/nfc_in_flutter.dart';
 import './read_example_screen.dart';
 import './write_example_screen.dart';
 
-void main() => runApp(ExampleApp());
+void main() => runApp(const ExampleApp());
 
 class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,25 +38,27 @@ class ExampleApp extends StatelessWidget {
         }),
       ),
       routes: {
-        "/read_example": (context) => ReadExampleScreen(),
-        "/write_example": (context) => WriteExampleScreen(),
+        "/read_example": (context) => const ReadExampleScreen(),
+        "/write_example": (context) => const WriteExampleScreen(),
       },
     );
   }
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   // _stream is a subscription to the stream returned by `NFC.read()`.
   // The subscription is stored in state so the stream can be canceled later
   StreamSubscription<NDEFMessage>? _stream;
 
   // _tags is a list of scanned tags
-  List<NDEFMessage> _tags = [];
+  final List<NDEFMessage> _tags = [];
 
   bool _supportsNFC = false;
 
@@ -89,7 +93,7 @@ class _MyAppState extends State<MyApp> {
           _stream = null;
         });
 
-        if (!(e is NFCUserCanceledSessionException)) {
+        if (e is! NFCUserCanceledSessionException) {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -104,7 +108,7 @@ class _MyAppState extends State<MyApp> {
         _stream = subscription;
       });
     } catch (err) {
-      print("error: $err");
+      debugPrint("error: $err");
     }
   }
 
@@ -146,9 +150,9 @@ class _MyAppState extends State<MyApp> {
             Builder(
               builder: (context) {
                 if (!_supportsNFC) {
-                  return TextButton(
-                    child: Text("NFC unsupported"),
+                  return const TextButton(
                     onPressed: null,
+                    child: Text("NFC unsupported"),
                   );
                 }
                 return TextButton(
@@ -165,7 +169,7 @@ class _MyAppState extends State<MyApp> {
               },
             ),
             IconButton(
-              icon: Icon(Icons.clear_all),
+              icon: const Icon(Icons.clear_all),
               onPressed: () {
                 setState(() {
                   _tags.clear();
@@ -179,9 +183,9 @@ class _MyAppState extends State<MyApp> {
         body: ListView.builder(
           itemCount: _tags.length,
           itemBuilder: (context, index) {
-            const TextStyle payloadTextStyle = const TextStyle(
+            const TextStyle payloadTextStyle = TextStyle(
               fontSize: 15,
-              color: const Color(0xFF454545),
+              color: Color(0xFF454545),
             );
 
             return Padding(
@@ -190,7 +194,7 @@ class _MyAppState extends State<MyApp> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   const Text("NDEF Tag",
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   Builder(
                     builder: (context) {
                       // Build list of records
@@ -203,7 +207,7 @@ class _MyAppState extends State<MyApp> {
                               "Record ${i + 1} - ${_tags[index].records[i].type}",
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: const Color(0xFF666666),
+                                color: Color(0xFF666666),
                               ),
                             ),
                             Text(

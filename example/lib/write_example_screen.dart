@@ -9,13 +9,15 @@ class RecordEditor {
 }
 
 class WriteExampleScreen extends StatefulWidget {
+  const WriteExampleScreen({super.key});
+
   @override
-  _WriteExampleScreenState createState() => _WriteExampleScreenState();
+  WriteExampleScreenState createState() => WriteExampleScreenState();
 }
 
-class _WriteExampleScreenState extends State<WriteExampleScreen> {
+class WriteExampleScreenState extends State<WriteExampleScreen> {
   StreamSubscription<NDEFMessage>? _stream;
-  List<RecordEditor> _records = [];
+  final List<RecordEditor> _records = [];
   bool _hasClosedWriteDialog = false;
 
   void _addRecord() {
@@ -55,7 +57,7 @@ class _WriteExampleScreenState extends State<WriteExampleScreen> {
 
     // Write to the first tag scanned
     await NFC.writeNDEF(message).first;
-    if (!_hasClosedWriteDialog) {
+    if (!_hasClosedWriteDialog && mounted) {
       Navigator.pop(context);
     }
   }
@@ -71,8 +73,8 @@ class _WriteExampleScreenState extends State<WriteExampleScreen> {
         children: <Widget>[
           Center(
             child: OutlinedButton(
-              child: const Text("Add record"),
               onPressed: _addRecord,
+              child: const Text("Add record"),
             ),
           ),
           for (var record in _records)
@@ -81,16 +83,16 @@ class _WriteExampleScreenState extends State<WriteExampleScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text("Record", style: Theme.of(context).textTheme.bodyText1),
+                  Text("Record", style: Theme.of(context).textTheme.bodyLarge),
                   TextFormField(
                     controller: record.mediaTypeController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Media type",
                     ),
                   ),
                   TextFormField(
                     controller: record.payloadController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Payload",
                     ),
                   )
@@ -99,8 +101,8 @@ class _WriteExampleScreenState extends State<WriteExampleScreen> {
             ),
           Center(
             child: ElevatedButton(
+              onPressed: _records.isNotEmpty ? () => _write(context) : null,
               child: const Text("Write to tag"),
-              onPressed: _records.length > 0 ? () => _write(context) : null,
             ),
           ),
         ],

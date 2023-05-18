@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:nfc_in_flutter/nfc_in_flutter.dart';
 
 class ReadExampleScreen extends StatefulWidget {
+  const ReadExampleScreen({super.key});
+
   @override
-  _ReadExampleScreenState createState() => _ReadExampleScreenState();
+  ReadExampleScreenState createState() => ReadExampleScreenState();
 }
 
-class _ReadExampleScreenState extends State<ReadExampleScreen> {
+class ReadExampleScreenState extends State<ReadExampleScreen> {
   StreamSubscription<NDEFMessage>? _stream;
 
   void _startScanning() {
@@ -16,12 +18,12 @@ class _ReadExampleScreenState extends State<ReadExampleScreen> {
           .readNDEF(alertMessage: "Custom message with readNDEF#alertMessage")
           .listen((NDEFMessage message) {
         if (message.isEmpty) {
-          print("Read empty NDEF message");
+          debugPrint("Read empty NDEF message");
           return;
         }
-        print("Read NDEF message with ${message.records.length} records");
+        debugPrint("Read NDEF message with ${message.records.length} records");
         for (NDEFRecord record in message.records) {
-          print(
+          debugPrint(
               "Record '${record.id ?? "[NO ID]"}' with TNF '${record.tnf}', type '${record.type}', payload '${record.payload}' and data '${record.data}' and language code '${record.languageCode}'");
         }
       }, onError: (error) {
@@ -29,11 +31,11 @@ class _ReadExampleScreenState extends State<ReadExampleScreen> {
           _stream = null;
         });
         if (error is NFCUserCanceledSessionException) {
-          print("user canceled");
+          debugPrint("user canceled");
         } else if (error is NFCSessionTimeoutException) {
-          print("session timed out");
+          debugPrint("session timed out");
         } else {
-          print("error: $error");
+          debugPrint("error: $error");
         }
       }, onDone: () {
         setState(() {
@@ -72,8 +74,8 @@ class _ReadExampleScreenState extends State<ReadExampleScreen> {
       ),
       body: Center(
           child: ElevatedButton(
-        child: const Text("Toggle scan"),
         onPressed: _toggleScan,
+        child: const Text("Toggle scan"),
       )),
     );
   }
